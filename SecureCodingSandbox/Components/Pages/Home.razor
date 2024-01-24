@@ -1,0 +1,72 @@
+﻿@page "/"
+@using Data;
+@using Microsoft.EntityFrameworkCore;
+@inject AppDbContext context; 
+
+<h3>Login</h3>
+
+<EditForm Model="@loginModel" OnValidSubmit="@Login">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+	<div>
+		<p>
+			' OR (select password from users where username = 'admin' limit 1) = 'password' --
+		</p>
+	</div>
+
+	<div>
+		<label class="form-label" for="username">Username</label>
+		<InputText class="form-control" id="username" @bind-Value="loginModel.Username" />
+	</div>
+
+	<div>
+		<label class="form-label" for="password">Password</label>
+		<InputText class="form-control" id="password" type="password" @bind-Value="loginModel.Password" />
+	</div>
+	<button class="btn btn-primary btn-sm my-2" type="submit">Login</button>
+
+	@if(authenticated)
+	{
+		<div class="text-success">@secretMessage</div>
+	}
+
+	@if(error.Length > 0)
+	{
+		<div class="text-danger">@error</div>
+	}
+
+</EditForm>
+
+@code {
+	private LoginModel loginModel = new LoginModel();
+	private string secretMessage = "You did it!";
+	private bool authenticated = false;
+	private string error = "";
+
+	private async Task Login()
+	{
+		try
+		{
+			var user = await context.Users.FromSqlRaw($"SELECT * FROM Users WHERE Username = '{loginModel.Username}' AND Password = '{loginModel.Password}'").FirstOrDefaultAsync();
+			if (user != null)
+			{
+				authenticated = true;
+			}
+			else
+			{
+				authenticated = false;
+				error = "Invalid login";
+			}
+		}
+		catch (Exception e)
+		{
+			error = e.Message;
+		}
+	}
+
+	private class LoginModel
+	{
+		public string Username { get; set; }
+		public string Password { get; set; }
+	}
+}
